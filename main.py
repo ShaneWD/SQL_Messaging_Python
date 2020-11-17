@@ -60,16 +60,22 @@ What is your password?
         print("It doesn't match")
         signed_in = False
 # login()
+
+
 def send_message():
+
     username = input("""
 What is your username?""")
+
     # remove later; have credentials already completed and remembered if the user previously logged in.
     mycursor.execute(f"""Select * from accounts WHERE username = "{username}" """)
     myresult = mycursor.fetchone()
+
     sql_account_account_id = myresult[0]
     sql_account_name = myresult[1]
     sql_account_email = myresult[2]
     sql_account_password = myresult[3]
+
     pending_message = input("""
 What is the message you want to send?
 >""")
@@ -78,14 +84,15 @@ What is the message you want to send?
     SELECT MAX(message_id)
     FROM message
     """)
+    # retrieves the row with the highest message_id number
     old_max_id = mycursor.fetchone()
     # myresult = str(myresult)
-    old_max_id = old_max_id[0]
-    new_max_id = old_max_id + 1
+    new_max_id = old_max_id[0] + 1
+    # removes parenthesis brackets
 
     mycursor.execute(f"""
     INSERT INTO message (message_id, account_id, message, username)
     VALUES ("{new_max_id}", "{sql_account_account_id}", "{pending_message}", "{username}");""")
-
+    # sends message into database.
     mydb.commit()
 send_message()

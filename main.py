@@ -3,8 +3,9 @@
 import bcrypt
 import mysql.connector
 
-f = open("pwd.txt", "r")
-pwd = (f.read())
+file_pwd = open("pwd.txt", "r")
+# "pwd.txt" has plain text password for the database. 
+pwd = (file_pwd.read())
 # "pwd.txt" will not be included in GitHub for security reasons.
 mydb = mysql.connector.connect(host="localhost",
                                user="root",
@@ -56,6 +57,10 @@ What is your password?
         # checks if the encrypted password mashes the plain text password given by the user
         print("It matches")
         signed_in = True
+        # gen_pwd = open("generated_credentials.txt", "w+")
+        with open("generated_credentials.txt", "w+") as text:
+            text.write(f"""{username}, {password.decode()}""")
+        text.close()
     else:
         print("It doesn't match")
         signed_in = False
@@ -64,10 +69,19 @@ What is your password?
 
 def send_message():
 
-    username = input("""
-What is your username?""")
+    try:
+        with open("generated_credentials.txt", "r") as text:
+            f = text.read()
+        text.close()
+        f = f.split(", ")
+        username = f[0]
+        password = f[1]
+        print(username)
+    except FileNotFoundError:
+        print("\nFailure to find credentials. Login in again")
+        login()
 
-    # remove later; have credentials already completed and remembered if the user previously logged in.
+    # - remove later; have credentials already completed and remembered if the user previously logged in.
     mycursor.execute(f"""Select * from accounts WHERE username = "{username}" """)
     myresult = mycursor.fetchone()
 

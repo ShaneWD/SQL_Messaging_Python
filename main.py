@@ -157,6 +157,9 @@ def create_account():
             password = input("""Retype password
 >""")
             if requested_password == password:
+                password = password.encode()
+                hashed = bcrypt.hashpw(password, bcrypt.gensalt())
+                hashed = hashed.decode()
                 break
             else:
                 print("They did not match")
@@ -180,7 +183,7 @@ def create_account():
 
     mycursor.execute(f"""
     INSERT INTO accounts (account_id, username, email, password)
-    VALUES ("{new_max_id}", "{actual_username}", "{requested_email}", "{password}");""")
+    VALUES ("{new_max_id}", "{actual_username}", "{requested_email}", "{hashed}");""")
 
     mydb.commit()
 

@@ -115,10 +115,10 @@ What is the message you want to send?
     old_max_id = mycursor.fetchone()
     try:
         new_max_id = old_max_id[0] + 1
+        # creates the highest id number that is one larger from the second largest.
     except TypeError:
         new_max_id = 1
         # used for if the database has no rows/is wiped clean
-    # creates the highest id number that is one larger from the second largest.
 
     mycursor.execute(f"""
     INSERT INTO message (message_id, account_id, message, username)
@@ -127,3 +127,62 @@ What is the message you want to send?
     mydb.commit()
 
 
+def create_account():
+    global actual_username
+    while True:
+        requested_username = input("""Username
+    >""")
+        mycursor.execute(f"""SELECT username FROM accounts WHERE username = '{requested_username}' """)
+        myresult = mycursor.fetchone()
+        if not myresult:
+            actual_username = requested_username
+            break
+        else:
+            print("an account already has that username")
+    while True:
+        requested_email = input("""Email
+>""")
+        mycursor.execute(f"""SELECT email FROM accounts WHERE email = '{requested_email}' """)
+        myresult = mycursor.fetchone()
+        print(myresult)
+        if myresult:
+            print("an account already has that email")
+
+        else:
+            break
+    while True:
+        requested_password = input("""Password
+>""")
+        if 14 > len(requested_password) > 3:
+            password = input("""Retype password
+>""")
+            if requested_password == password:
+                break
+            else:
+                print("They did not match")
+        elif len(requested_password) > 14:
+            print("password has too many characters")
+        elif len(requested_password) < 3:
+            print("password is too short")
+
+    mycursor.execute("""
+        SELECT MAX(account_id)
+        FROM accounts
+        """)
+    # retrieves the row with the highest message_id number
+    old_max_id = mycursor.fetchone()
+    try:
+        new_max_id = old_max_id[0] + 1
+        # creates the highest id number that is one larger from the second largest.
+    except TypeError:
+        new_max_id = 1
+        # used for if the database has no rows/is wiped clean
+
+    mycursor.execute(f"""
+    INSERT INTO accounts (account_id, username, email, password)
+    VALUES ("{new_max_id}", "{actual_username}", "{requested_email}", "{password}");""")
+
+    mydb.commit()
+
+
+create_account()

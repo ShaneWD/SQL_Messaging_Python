@@ -18,16 +18,16 @@ mycursor = mydb.cursor()
 signed_in = False
 # Shows if the user is already signed in
 
-username = ""
-better_work = username
+actual_username = ""
+
 
 def login():
     global signed_in
-    global better_work
+    global actual_username
     while True:
 
         username = input("""
-What is user name?
+What is username?
 >""")
         if len(username) > 11:
             raise ValueError("Username is too large")
@@ -49,8 +49,8 @@ What is your password?
         # returns none if username was not able to be located
         if myresult:
             # if it located the username, it will break away from the loop
-            better_work = username
-            print(better_work)
+            actual_username = username
+            print(actual_username)
             break
         else:
             # if it did not locate the username, it will
@@ -65,7 +65,7 @@ What is your password?
         # gen_pwd = open("generated_credentials.txt", "w+")
         with open("generated_credentials.txt", "w+") as text:
             text.write(f"""{username}, {password.decode()}""")
-         # text.close()
+        text.close()
         print(username + "123")
     else:
         print("It doesn't match")
@@ -74,14 +74,14 @@ What is your password?
 
 
 def send_message():
-    global better_work
+    global actual_username
     if path.exists("generated_credentials.txt"):
         with open("generated_credentials.txt", "r") as text:
             f = text.read()
-        # text.close()
+        text.close()
         f = f.split(", ")
         username = f[0]
-        better_work = username
+        actual_username = username
         password = f[1]
         print(username)
     else:
@@ -89,7 +89,7 @@ def send_message():
         login()
 
     # - remove later; have credentials already completed and remembered if the user previously logged in.
-    mycursor.execute(f"""Select * from accounts WHERE username = "{better_work}" """)
+    mycursor.execute(f"""Select * from accounts WHERE username = "{actual_username}" """)
     myresult = mycursor.fetchone()
 
     sql_account_account_id = myresult[0]
@@ -107,13 +107,17 @@ What is the message you want to send?
     """)
     # retrieves the row with the highest message_id number
     old_max_id = mycursor.fetchone()
-    # myresult = str(myresult)
-    new_max_id = old_max_id[0] + 1
+    try:
+        new_max_id = old_max_id[0] + 1
+    except TypeError:
+        new_max_id = 1
     # removes parenthesis brackets
 
     mycursor.execute(f"""
     INSERT INTO message (message_id, account_id, message, username)
-    VALUES ("{new_max_id}", "{sql_account_account_id}", "{pending_message}", "{better_work}");""")
+    VALUES ("{new_max_id}", "{sql_account_account_id}", "{pending_message}", "{actual_username}");""")
     # sends message into database.
     mydb.commit()
+
+
 send_message()

@@ -2,6 +2,7 @@
 # pip install bcrypt
 import bcrypt
 import mysql.connector
+from os import path
 
 file_pwd = open("pwd.txt", "r")
 # "pwd.txt" has plain text password for the database. 
@@ -50,7 +51,7 @@ What is your password?
             # if it did not locate the username, it will
             print("username does not exist")
             pass
-
+        return username
     myresult = myresult[0].encode()
     # removes the unnecessary parentheses and the single quotation mark
     if bcrypt.checkpw(password, myresult):
@@ -60,7 +61,8 @@ What is your password?
         # gen_pwd = open("generated_credentials.txt", "w+")
         with open("generated_credentials.txt", "w+") as text:
             text.write(f"""{username}, {password.decode()}""")
-        text.close()
+         # text.close()
+        print(username + "123")
     else:
         print("It doesn't match")
         signed_in = False
@@ -69,15 +71,18 @@ What is your password?
 
 def send_message():
 
-    try:
-        with open("generated_credentials.txt", "r") as text:
-            f = text.read()
-        text.close()
-        f = f.split(", ")
-        username = f[0]
-        password = f[1]
-        print(username)
-    except FileNotFoundError:
+    global username
+    if path.exists("generated_credentials.txt"):
+        def read_pwd_file():
+            with open("generated_credentials.txt", "r") as text:
+                f = text.read()
+            text.close()
+            f = f.split(", ")
+            username = f[0]
+            password = f[1]
+            print(username)
+        read_pwd_file()
+    else:
         print("\nFailure to find credentials. Login in again")
         login()
 

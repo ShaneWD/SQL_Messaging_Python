@@ -18,9 +18,12 @@ mycursor = mydb.cursor()
 signed_in = False
 # Shows if the user is already signed in
 
+username = ""
+better_work = username
 
 def login():
     global signed_in
+    global better_work
     while True:
 
         username = input("""
@@ -46,12 +49,13 @@ What is your password?
         # returns none if username was not able to be located
         if myresult:
             # if it located the username, it will break away from the loop
+            better_work = username
+            print(better_work)
             break
         else:
             # if it did not locate the username, it will
             print("username does not exist")
             pass
-        return username
     myresult = myresult[0].encode()
     # removes the unnecessary parentheses and the single quotation mark
     if bcrypt.checkpw(password, myresult):
@@ -70,24 +74,22 @@ What is your password?
 
 
 def send_message():
-
-    global username
+    global better_work
     if path.exists("generated_credentials.txt"):
-        def read_pwd_file():
-            with open("generated_credentials.txt", "r") as text:
-                f = text.read()
-            text.close()
-            f = f.split(", ")
-            username = f[0]
-            password = f[1]
-            print(username)
-        read_pwd_file()
+        with open("generated_credentials.txt", "r") as text:
+            f = text.read()
+        # text.close()
+        f = f.split(", ")
+        username = f[0]
+        better_work = username
+        password = f[1]
+        print(username)
     else:
         print("\nFailure to find credentials. Login in again")
         login()
 
     # - remove later; have credentials already completed and remembered if the user previously logged in.
-    mycursor.execute(f"""Select * from accounts WHERE username = "{username}" """)
+    mycursor.execute(f"""Select * from accounts WHERE username = "{better_work}" """)
     myresult = mycursor.fetchone()
 
     sql_account_account_id = myresult[0]
@@ -111,7 +113,7 @@ What is the message you want to send?
 
     mycursor.execute(f"""
     INSERT INTO message (message_id, account_id, message, username)
-    VALUES ("{new_max_id}", "{sql_account_account_id}", "{pending_message}", "{username}");""")
+    VALUES ("{new_max_id}", "{sql_account_account_id}", "{pending_message}", "{better_work}");""")
     # sends message into database.
     mydb.commit()
 send_message()

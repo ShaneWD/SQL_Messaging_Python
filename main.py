@@ -1,5 +1,6 @@
 # pip install mysql-connector-python
 # pip install bcrypt
+# pip install requests
 import bcrypt
 import mysql.connector
 from os import path
@@ -8,17 +9,21 @@ file_pwd = open("pwd.txt", "r")
 # "pwd.txt" has plain text password for the database. 
 pwd = (file_pwd.read())
 # "pwd.txt" will not be included in GitHub for security reasons.
+file_pwd.close()
+# close unneeded process to same more memory.
 mydb = mysql.connector.connect(host="localhost",
                                user="root",
                                password=pwd,
                                database='messaging_333')
+# connect to database with MySQL
 
 mycursor = mydb.cursor()
-# connected
+# this is responsible for handling SQL commands.
 signed_in = False
 # Shows if the user is already signed in
 
 actual_username = ""
+# needed to transfer the username of the user across multiple functions.
 
 
 def login():
@@ -80,6 +85,7 @@ def send_message():
             f = text.read()
         text.close()
         f = f.split(", ")
+        # the file looks like this " person, password ". So, splitting it at the comma is smart.
         username = f[0]
         actual_username = username
         password = f[1]
@@ -111,7 +117,8 @@ What is the message you want to send?
         new_max_id = old_max_id[0] + 1
     except TypeError:
         new_max_id = 1
-    # removes parenthesis brackets
+        # used for if the database has no rows/is wiped clean
+    # creates the highest id number that is one larger from the second largest.
 
     mycursor.execute(f"""
     INSERT INTO message (message_id, account_id, message, username)
@@ -120,4 +127,3 @@ What is the message you want to send?
     mydb.commit()
 
 
-send_message()

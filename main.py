@@ -203,17 +203,19 @@ def change_password():
 >""")
         password = input("""Password 
 >""").encode()
+        print(password)
         mycursor.execute(f"""SELECT password FROM accounts WHERE username = "{username}" """)
         myresult = mycursor.fetchone()
         # returns value with two parentheses, and a comma (tuple)
-        myresult = myresult[0].encode()
+        myresult = myresult[0].encode("utf-8")
+        print(myresult)
         # removes the coma and parentheses
         # encodes it to be compared to plain-text password
 
-        if bcrypt.hashpw(password, myresult):
+        if bcrypt.checkpw(password, myresult):
             requested_new_password = input("""New Password
 >""").encode()
-            hashed = bcrypt.hashpw(password, bcrypt.gensalt())
+            hashed = bcrypt.hashpw(requested_new_password, bcrypt.gensalt())
             hashed = hashed.decode()
             if 14 > len(requested_new_password) > 3:
                 mycursor.execute(f"""

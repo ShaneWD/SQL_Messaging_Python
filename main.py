@@ -23,6 +23,8 @@ signed_in = False
 # Shows if the user is already signed in
 
 actual_username = ""
+
+
 # needed to transfer the username of the user across multiple functions.
 
 
@@ -75,6 +77,8 @@ What is your password?
     else:
         print("It doesn't match")
         signed_in = False
+
+
 # login()
 
 
@@ -131,13 +135,16 @@ def create_account():
     global actual_username
     while True:
         requested_username = input("""Username
-    >""")
+>""")
         mycursor.execute(f"""SELECT username FROM accounts WHERE username = '{requested_username}' """)
         myresult = mycursor.fetchone()
+        # tries to find the username in the database
         if not myresult:
+            # if it could not find the username in the database, it returns None
             actual_username = requested_username
             break
         else:
+            # returns the name of the account in the database if the username was able to be located
             print("an account already has that username")
     while True:
         requested_email = input("""Email
@@ -186,6 +193,42 @@ def create_account():
     VALUES ("{new_max_id}", "{actual_username}", "{requested_email}", "{hashed}");""")
 
     mydb.commit()
+
+
+def change_password():
+    confirmation = input("""Are you sure
+>""").lower()
+    if confirmation.lower() == "yes":
+        username = input("""Username
+>""")
+        password = input("""Password 
+>""").encode()
+        mycursor.execute(f"""SELECT password FROM accounts WHERE username = "{username}" """)
+        myresult = mycursor.fetchone()
+        # returns value with two parentheses, and a comma (tuple)
+        myresult = myresult[0].encode()
+        # removes the coma and parentheses
+        # encodes it to be compared to plain-text password
+
+        if bcrypt.hashpw(password, myresult):
+            requested_new_password = input("""New Password
+>""")
+            if 14 > len(requested_new_password) > 3:
+                mycursor.execute(f"""SELECT password FROM accounts WHERE username = "{username}" """)
+                myresult = mycursor.fetchone()
+                # returns value with two parentheses, and a comma (tuple)
+                password = myresult[0].encode()
+                hashed = bcrypt.hashpw(password, bcrypt.gensalt())
+                hashed = hashed.decode()
+                mycursor.execute(f"""SELECT password FROM accounts WHERE """)
+            elif len(requested_new_password) > 14:
+                print("password is too large")
+            elif len(requested_new_password) < 3:
+                print("password is too small")
+        else:
+            print("no")
+    else:
+        pass
 
 
 create_account()

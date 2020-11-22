@@ -212,23 +212,24 @@ def change_password():
 
         if bcrypt.hashpw(password, myresult):
             requested_new_password = input("""New Password
->""")
+>""").encode()
+            hashed = bcrypt.hashpw(password, bcrypt.gensalt())
+            hashed = hashed.decode()
             if 14 > len(requested_new_password) > 3:
-                mycursor.execute(f"""SELECT password FROM accounts WHERE username = "{username}" """)
-                myresult = mycursor.fetchone()
-                # returns value with two parentheses, and a comma (tuple)
-                password = myresult[0].encode()
-                hashed = bcrypt.hashpw(password, bcrypt.gensalt())
-                hashed = hashed.decode()
-                mycursor.execute(f"""SELECT password FROM accounts WHERE """)
+                mycursor.execute(f"""
+UPDATE accounts 
+SET password = '{hashed}'
+WHERE username = '{username}';
+""")
+                mydb.commit()
             elif len(requested_new_password) > 14:
                 print("password is too large")
             elif len(requested_new_password) < 3:
                 print("password is too small")
         else:
-            print("no")
+            print("failure")
     else:
         pass
 
 
-create_account()
+change_password()

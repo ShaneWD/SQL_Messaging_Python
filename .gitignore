@@ -8,5 +8,7 @@ new_row.py
 pwd.txt
 read_table.py
 tests.py
+credentials.txt
+none.py
 .idea/
 venv/

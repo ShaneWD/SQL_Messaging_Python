@@ -213,10 +213,13 @@ def change_password():
         # encodes it to be compared to plain-text password
 
         if bcrypt.checkpw(password, myresult):
+            # if the plain text passwords matches the hashed text in the MySQL database.
             requested_new_password = input("""New Password
 >""").encode()
             hashed = bcrypt.hashpw(requested_new_password, bcrypt.gensalt())
+            # hashes the new password
             hashed = hashed.decode()
+            # removes the b, as well as the quotation marks
             if 14 > len(requested_new_password) > 3:
                 mycursor.execute(f"""
 UPDATE accounts 
@@ -224,6 +227,7 @@ SET password = '{hashed}'
 WHERE username = '{username}';
 """)
                 mydb.commit()
+                # pushes the data into the right cell in the base.
             elif len(requested_new_password) > 14:
                 print("password is too large")
             elif len(requested_new_password) < 3:
@@ -234,4 +238,4 @@ WHERE username = '{username}';
         pass
 
 
-change_password()
+send_message()

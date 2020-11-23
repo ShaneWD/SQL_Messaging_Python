@@ -238,4 +238,20 @@ WHERE username = '{username}';
         pass
 
 
+def delete_account():
+    confirmation = input("""Are you sure? This cannot be undone
+>""").lower()
+    if confirmation == "yes":
+        username = input("""Username
+>""")
+        mycursor.execute(f"""Select * from accounts WHERE username = "{username}" """)
+        myresult = mycursor.fetchone()
+
+        sql_account_account_id = myresult[0]
+        sql_account_name = myresult[1]
+        sql_account_email = myresult[2]
+        sql_account_password = myresult[3]
+    else:
+        pass
+
 send_message()

@@ -106,29 +106,29 @@ def send_message():
     sql_account_name = myresult[1]
     sql_account_email = myresult[2]
     sql_account_password = myresult[3]
-
-    pending_message = input("""
+    while True:
+        pending_message = input("""
 What is the message you want to send?
 >""")
 
-    mycursor.execute("""
-    SELECT MAX(message_id)
-    FROM message
-    """)
-    # retrieves the row with the highest message_id number
-    old_max_id = mycursor.fetchone()
-    try:
-        new_max_id = old_max_id[0] + 1
-        # creates the highest id number that is one larger from the second largest.
-    except TypeError:
-        new_max_id = 1
-        # used for if the database has no rows/is wiped clean
+        mycursor.execute("""
+SELECT MAX(message_id)
+FROM message
+        """)
+        # retrieves the row with the highest message_id number
+        old_max_id = mycursor.fetchone()
+        try:
+            new_max_id = old_max_id[0] + 1
+            # creates the highest id number that is one larger from the second largest.
+        except TypeError:
+            new_max_id = 1
+            # used for if the database has no rows/is wiped clean
 
-    mycursor.execute(f"""
-    INSERT INTO message (message_id, account_id, message, username)
-    VALUES ("{new_max_id}", "{sql_account_account_id}", "{pending_message}", "{actual_username}");""")
-    # sends message into database.
-    mydb.commit()
+        mycursor.execute(f"""
+INSERT INTO message (message_id, account_id, message, username)
+VALUES ("{new_max_id}", "{sql_account_account_id}", "{pending_message}", "{actual_username}");""")
+        # sends message into database.
+        mydb.commit()
 
 
 def create_account():
@@ -244,6 +244,8 @@ def delete_account():
     if confirmation == "yes":
         username = input("""Username
 >""")
+        password = input("""Password
+>""")
         mycursor.execute(f"""Select * from accounts WHERE username = "{username}" """)
         myresult = mycursor.fetchone()
 
@@ -251,7 +253,14 @@ def delete_account():
         sql_account_name = myresult[1]
         sql_account_email = myresult[2]
         sql_account_password = myresult[3]
+        if bcrypt.checkpw(password.encode(), sql_account_password.encode()):
+            mycursor.execute(f""" DELETE FROM message WHERE account_id = "{sql_account_account_id}" """)
+            mydb.commit()
+            mycursor.execute(f""" DELETE FROM accounts WHERE account_id = "{sql_account_account_id}" """)
+            mydb.commit()
+        else:
+            print("failure")
     else:
         pass
 
-send_message()
+delete_account()

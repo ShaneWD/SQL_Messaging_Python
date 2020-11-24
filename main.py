@@ -101,7 +101,16 @@ def send_message():
     # - remove later; have credentials already completed and remembered if the user previously logged in.
     mycursor.execute(f"""Select * from accounts WHERE username = "{actual_username}" """)
     myresult = mycursor.fetchone()
-
+    if myresult:
+        # if it located the username, it will break away from the loop
+        pass
+    else:
+        # if it did not locate the username, it will
+        if path.exists("credentials.txt"):
+            f = open('credentials.txt', 'r+')
+            f.truncate(0)  # need '0' when using r+
+        login()
+        send_message()
     sql_account_account_id = myresult[0]
     sql_account_name = myresult[1]
     sql_account_email = myresult[2]
@@ -263,4 +272,4 @@ def delete_account():
     else:
         pass
 
-delete_account()
+send_message()
